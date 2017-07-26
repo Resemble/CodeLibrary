@@ -15,10 +15,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author ranran
@@ -191,6 +190,44 @@ public class Email {
         }
         Transport.send(mimeMessage);
 
+    }
+
+
+
+    /**
+     * 邮件消息的 url 提取 包括所有除 Img 标签的 http 或 https 开头的 url
+     * @param htmlMessage
+     * @return
+     */
+    public static HashMap<Integer, String> getUrlsFromEmailMessage(String htmlMessage) {
+        Pattern patternImg = Pattern.compile("<img.*?src=[\"']?((https?)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]+\\.(jpg|gif|png))[\"']?");
+        Pattern patternUrl = Pattern.compile("(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
+        Matcher matcherImg = patternImg.matcher(htmlMessage);
+        Matcher matcherUrl = patternUrl.matcher(htmlMessage);
+
+        HashMap<Integer, String> linkOrderMap = new HashMap<>();
+        List<String> urlLinkList = new ArrayList<>();
+        List<String> imgLinkList = new ArrayList<>();
+
+        while(matcherImg.find()) {
+            String imgLink = matcherImg.group(1);
+            imgLinkList.add(imgLink);
+        }
+
+        while(matcherUrl.find()) {
+            String urlLink = matcherUrl.group();
+            urlLinkList.add(urlLink);
+        }
+
+        urlLinkList.removeAll(imgLinkList);
+
+        Jlog.info("links to be tracked:" + urlLinkList);
+
+        for (int i = 0; i < urlLinkList.size(); i++) {
+            linkOrderMap.put(i, urlLinkList.get(i));
+        }
+
+        return linkOrderMap;
     }
 
 
