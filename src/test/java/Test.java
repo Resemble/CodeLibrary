@@ -1,4 +1,5 @@
 import src.EnumData;
+import src.Jlog;
 import src.RDate;
 
 /**
@@ -19,7 +20,7 @@ public class Test {
 
         String desc = EnumData.ENUM2.desc;
         System.out.println("enum desc:" + desc);
-
+        Jlog.info(EnumData.ENUM2.order);
 
     }
 
